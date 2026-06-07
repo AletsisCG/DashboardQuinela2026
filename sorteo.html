@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteo Quinela Mundialista 2026</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .bombo-card {
+            transition: all 0.3s ease;
+        }
+        .bombo-active {
+            border-color: #3b82f6;
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2 uppercase">
+                Sorteo Quinela 2026
+            </h1>
+            <p class="text-slate-400">México • USA • Canadá | Asignación Aleatoria por Bombos</p>
+        </header>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            
+            <div id="card-0" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 1</span>
+                        <span id="count-0" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Participantes</h3>
+                    <p class="text-xs text-slate-400 mb-4">Quién recibe la selección</p>
+                </div>
+                <div>
+                    <div id="display-0" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
+                        -
+                    </div>
+                    <button id="btn-0" onclick="drawParticipant()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed">
+                        Elegir
+                    </button>
+                </div>
+            </div>
+
+            <div id="card-1" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 2</span>
+                        <span id="count-1" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Selección Alta</h3>
+                    <p class="text-xs text-slate-400 mb-4">Primer bombo de nivel</p>
+                </div>
+                <div>
+                    <div id="display-1" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
+                        -
+                    </div>
+                    <button id="btn-1" onclick="drawAlta()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed" disabled>
+                        Elegir
+                    </button>
+                </div>
+            </div>
+
+            <div id="card-2" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 3</span>
+                        <span id="count-2" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Selección Media</h3>
+                    <p class="text-xs text-slate-400 mb-4">Segundo bombo de nivel</p>
+                </div>
+                <div>
+                    <div id="display-2" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
+                        -
+                    </div>
+                    <button id="btn-2" onclick="drawMedia()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed" disabled>
+                        Elegir
+                    </button>
+                </div>
+            </div>
+
+            <div id="card-3" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 4</span>
+                        <span id="count-3" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-1">Selección Baja</h3>
+                    <p class="text-xs text-slate-400 mb-4">Tercer bombo de nivel</p>
+                </div>
+                <div>
+                    <div id="display-3" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
+                        -
+                    </div>
+                    <button id="btn-3" onclick="drawBaja()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed" disabled>
+                        Elegir
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
+            <div class="px-6 py-4 bg-slate-750 border-b border-slate-700 flex justify-between items-center">
+                <h2 class="text-lg font-bold text-white">Resultados del Sorteo</h2>
+                <span id="table-progress" class="text-sm text-slate-400">Progreso: 0 / 16</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-900/50 text-slate-300 text-xs uppercase tracking-wider border-b border-slate-700">
+                            <th class="py-3 px-6">#</th>
+                            <th class="py-3 px-6">Participante</th>
+                            <th class="py-3 px-6">Selección Alta</th>
+                            <th class="py-3 px-6">Selección Media</th>
+                            <th class="py-3 px-6">Selección Baja</th>
+                            <th class="py-3 px-6 text-right">Notas de Validación</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-tbody" class="divide-y divide-slate-700/50 text-sm">
+                        <tr id="empty-row" class="text-slate-500">
+                            <td colspan="6" class="py-10 text-center font-medium">Inicia el sorteo para ver los cruces aquí.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Listas iniciales de datos crudos proporcionados
+        let participantes = ["Michelle", "Giby", "Ancel", "Cesar", "Emi", "Braulio", "Noe", "Luis", "Bruno", "Ivan", "Arturo", "Daniel", "Diego", "Alexis", "Jhovani", "Santiago"];
+        
+        // Mapeo exhaustivo de selecciones con su grupo correspondiente según el fixture oficial
+        let bomboAlta = [
+            { name: "Francia #1", group: "I" }, { name: "España #2", group: "H" },
+            { name: "Argentina #3", group: "J" }, { name: "Inglaterra #4", group: "L" },
+            { name: "Portugal #5", group: "K" }, { name: "Brasil #6", group: "C" },
+            { name: "Países Bajos #7", group: "F" }, { name: "Marruecos #8", group: "C" },
+            { name: "Bélgica #9", group: "G" }, { name: "Alemania #10", group: "E" },
+            { name: "Croacia #11", group: "L" }, { name: "Colombia #13", group: "K" },
+            { name: "Senegal #14", group: "I" }, { name: "México #15", group: "A" },
+            { name: "Estados Unidos #16", group: "D" }, { name: "Uruguay #17", group: "H" }
+        ];
+
+        let bomboMedia = [
+            { name: "Japón #18", group: "F" }, { name: "Suiza #19", group: "B" },
+            { name: "Irán #21", group: "G" }, { name: "Turquía #22", group: "D" },
+            { name: "Ecuador #23", group: "E" }, { name: "Austria #24", group: "J" },
+            { name: "Corea del Sur #25", group: "A" }, { name: "Australia #27", group: "D" },
+            { name: "Argelia #28", group: "J" }, { name: "Egipto #29", group: "G" },
+            { name: "Canadá #30", group: "B" }, { name: "Noruega #31", group: "I" },
+            { name: "Panamá #33", group: "L" }, { name: "Costa de Marfil #34", group: "E" },
+            { name: "Suecia #38", group: "F" }, { name: "Paraguay #40", group: "D" }
+        ];
+
+        let bomboBaja = [
+            { name: "Chequia #41", group: "A" }, { name: "Escocia #43", group: "C" },
+            { name: "Túnez #44", group: "F" }, { name: "RD Congo #46", group: "K" },
+            { name: "Uzbekistán #50", group: "K" }, { name: "Qatar #55", group: "B" },
+            { name: "Irak #57", group: "I" }, { name: "Sudáfrica #60", group: "A" },
+            { name: "Arabia Saudita #61", group: "H" }, { name: "Jordania #63", group: "J" },
+            { name: "Bosnia y Herzegovina #65", group: "B" }, { name: "Cabo Verde #69", group: "H" },
+            { name: "Ghana #74", group: "L" }, { name: "Curazao #82", group: "E" },
+            { name: "Haití #83", group: "C" }, { name: "Nueva Zelanda #85", group: "G" }
+        ];
+
+        // Estado interno de la ronda actual
+        let currentDraw = { participant: null, alta: null, media: null, baja: null };
+        let currentStep = 0; // 0: Part, 1: Alta, 2: Media, 3: Baja
+        let totalCompleted = 0;
+
+        // Inicializar interfaz visual
+        updateCounters();
+        highlightActiveCard();
+
+        function updateCounters() {
+            document.getElementById('count-0').innerText = `${participantes.length} restantes`;
+            document.getElementById('count-1').innerText = `${bomboAlta.length} restantes`;
+            document.getElementById('count-2').innerText = `${bomboMedia.length} restantes`;
+            document.getElementById('count-3').innerText = `${bomboBaja.length} restantes`;
+            document.getElementById('table-progress').innerText = `Progreso: ${totalCompleted} / 16`;
+        }
+
+        function getRandomIndex(array) {
+            return Math.floor(Math.random() * array.length);
+        }
+
+        function drawFromArray(array) {
+            const index = getRandomIndex(array);
+            return array.splice(index, 1)[0];
+        }
+
+        function setDisplay(step, value) {
+            document.getElementById(`display-${step}`).innerText = value;
+        }
+
+        function highlightActiveCard() {
+            for (let i = 0; i <= 3; i++) {
+                const card = document.getElementById(`card-${i}`);
+                const btn = document.getElementById(`btn-${i}`);
+
+                card.classList.remove('bombo-active');
+                btn.disabled = true;
+            }
+
+            if (totalCompleted >= 16) return;
+
+            const activeCard = document.getElementById(`card-${currentStep}`);
+            const activeButton = document.getElementById(`btn-${currentStep}`);
+
+            activeCard.classList.add('bombo-active');
+            activeButton.disabled = false;
+        }
+
+        function drawParticipant() {
+            if (currentStep !== 0 || participantes.length === 0) return;
+
+            currentDraw = { participant: null, alta: null, media: null, baja: null };
+
+            setDisplay(0, "-");
+            setDisplay(1, "-");
+            setDisplay(2, "-");
+            setDisplay(3, "-");
+
+            const participant = drawFromArray(participantes);
+            currentDraw.participant = participant;
+
+            setDisplay(0, participant);
+
+            currentStep = 1;
+            updateCounters();
+            highlightActiveCard();
+        }
+
+        function drawAlta() {
+            if (currentStep !== 1 || bomboAlta.length === 0) return;
+
+            const seleccion = drawFromArray(bomboAlta);
+            currentDraw.alta = seleccion;
+
+            setDisplay(1, `${seleccion.name} - Grupo ${seleccion.group}`);
+
+            currentStep = 2;
+            updateCounters();
+            highlightActiveCard();
+        }
+
+        function drawMedia() {
+            if (currentStep !== 2 || bomboMedia.length === 0) return;
+
+            const seleccion = drawFromArray(bomboMedia);
+            currentDraw.media = seleccion;
+
+            setDisplay(2, `${seleccion.name} - Grupo ${seleccion.group}`);
+
+            currentStep = 3;
+            updateCounters();
+            highlightActiveCard();
+        }
+
+        function drawBaja() {
+            if (currentStep !== 3 || bomboBaja.length === 0) return;
+
+            const gruposActuales = [
+                currentDraw.alta.group,
+                currentDraw.media.group
+            ];
+
+            let opcionesValidas = bomboBaja;
+
+            // Regla: máximo 2 selecciones del mismo grupo.
+            // Si alta y media son del mismo grupo, la baja no puede ser de ese mismo grupo.
+            if (currentDraw.alta.group === currentDraw.media.group) {
+                opcionesValidas = bomboBaja.filter(
+                    seleccion => seleccion.group !== currentDraw.alta.group
+                );
+            }
+
+            if (opcionesValidas.length === 0) {
+                alert("No hay selección baja válida disponible. Se necesita hacer cambio manual con otro participante.");
+                return;
+            }
+
+            const seleccionElegida = opcionesValidas[getRandomIndex(opcionesValidas)];
+            const indexReal = bomboBaja.findIndex(
+                seleccion => seleccion.name === seleccionElegida.name
+            );
+
+            const seleccion = bomboBaja.splice(indexReal, 1)[0];
+            currentDraw.baja = seleccion;
+
+            setDisplay(3, `${seleccion.name} - Grupo ${seleccion.group}`);
+
+            addResultToTable();
+
+            totalCompleted++;
+            currentStep = 0;
+
+            updateCounters();
+            highlightActiveCard();
+        }
+
+        function addResultToTable() {
+            const emptyRow = document.getElementById('empty-row');
+            if (emptyRow) {
+                emptyRow.remove();
+            }
+
+            const tbody = document.getElementById('results-tbody');
+
+            const grupos = [
+                currentDraw.alta.group,
+                currentDraw.media.group,
+                currentDraw.baja.group
+            ];
+
+            const conteoGrupos = {};
+            grupos.forEach(grupo => {
+                conteoGrupos[grupo] = (conteoGrupos[grupo] || 0) + 1;
+            });
+
+            const maxRepetido = Math.max(...Object.values(conteoGrupos));
+
+            let nota = "Correcto";
+            let notaClass = "text-green-400";
+
+            if (maxRepetido === 2) {
+                nota = "Tiene 2 selecciones del mismo grupo";
+                notaClass = "text-yellow-400";
+            }
+
+            const row = document.createElement('tr');
+            row.className = "hover:bg-slate-700/30 transition-colors";
+
+            row.innerHTML = `
+                <td class="py-3 px-6 font-bold">${totalCompleted + 1}</td>
+                <td class="py-3 px-6 font-semibold text-white">${currentDraw.participant}</td>
+                <td class="py-3 px-6">${currentDraw.alta.name} <span class="text-slate-400">(Grupo ${currentDraw.alta.group})</span></td>
+                <td class="py-3 px-6">${currentDraw.media.name} <span class="text-slate-400">(Grupo ${currentDraw.media.group})</span></td>
+                <td class="py-3 px-6">${currentDraw.baja.name} <span class="text-slate-400">(Grupo ${currentDraw.baja.group})</span></td>
+                <td class="py-3 px-6 text-right ${notaClass}">${nota}</td>
+            `;
+
+            tbody.appendChild(row);
+        }
+    </script>
+</body>
+</html>            
