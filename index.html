@@ -1,355 +1,1069 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sorteo Quinela Mundialista 2026</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        .bombo-card {
-            transition: all 0.3s ease;
-        }
-        .bombo-active {
-            border-color: #3b82f6;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-            transform: scale(1.02);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Quiniela Mundialista 2026</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #17223a;
+      --panel-2: #111827;
+      --line: #2b3954;
+      --text: #f8fafc;
+      --muted: #9fb0cc;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+      --warn: #facc15;
+      --danger: #fb7185;
+      --chip: #253451;
+      --gold: #fbbf24;
+      --silver: #cbd5e1;
+      --bronze: #d97706;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top, #1e3a5f 0, var(--bg) 40%, #08111f 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(1.65rem, 2.8vw, 2.65rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle { color: var(--muted); margin: 0; line-height: 1.55; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.14);
+      color: #bae6fd;
+      border: 1px solid rgba(56, 189, 248, 0.32);
+      font-weight: 800;
+      white-space: nowrap;
+      font-size: 0.9rem;
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-main { grid-template-columns: 1.35fr 0.65fr; }
+
+    .panel {
+      background: rgba(23, 34, 58, 0.93);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.24);
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 16px 18px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .panel-title { margin: 0; font-size: 1rem; letter-spacing: -0.01em; }
+    .panel-body { padding: 18px; }
+    .stat { padding: 18px; min-height: 124px; }
+    .stat-label { color: var(--muted); font-size: 0.85rem; margin-bottom: 8px; }
+    .stat-value { font-size: 1.85rem; font-weight: 950; line-height: 1.1; letter-spacing: -0.04em; }
+    .stat-small { color: var(--muted); font-size: 0.88rem; margin-top: 10px; line-height: 1.35; }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    button, select {
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-weight: 800;
+      background: #0b1220;
+      color: var(--text);
+      border: 1px solid var(--line);
+      outline: none;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      background: var(--accent);
+      color: #082f49;
+      transition: transform 0.12s ease, opacity 0.12s ease;
+      white-space: nowrap;
+    }
+
+    button:hover { transform: translateY(-1px); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+    .button-secondary { background: #253451; color: var(--text); border: 1px solid rgba(148, 163, 184, 0.2); }
+
+    .message {
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(250, 204, 21, 0.12);
+      color: #fde68a;
+      border: 1px solid rgba(250, 204, 21, 0.28);
+      line-height: 1.45;
+      font-size: 0.92rem;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .message.show { display: block; }
+    .message.error { background: rgba(251, 113, 133, 0.12); color: #fecdd3; border-color: rgba(251, 113, 133, 0.35); }
+    .message.ok { background: rgba(34, 197, 94, 0.12); color: #bbf7d0; border-color: rgba(34, 197, 94, 0.35); }
+
+    .chart-wrap { height: 560px; padding: 12px 6px 4px; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px 14px; border-bottom: 1px solid rgba(148, 163, 184, 0.12); vertical-align: top; }
+    th { color: #cbd5e1; text-align: left; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(15, 23, 42, 0.42); }
+    td { color: #e5eefc; }
+    tbody tr:hover { background: rgba(148, 163, 184, 0.05); }
+
+    .rank { font-weight: 950; font-size: 1rem; }
+    .rank-1 { color: var(--gold); }
+    .rank-2 { color: var(--silver); }
+    .rank-3 { color: var(--bronze); }
+
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 999px; background: var(--chip); color: #cbd5e1; font-size: 0.78rem; font-weight: 800; white-space: nowrap; }
+    .chip.green { background: rgba(34, 197, 94, 0.14); color: #bbf7d0; border: 1px solid rgba(34, 197, 94, 0.28); }
+    .chip.yellow { background: rgba(250, 204, 21, 0.12); color: #fde68a; border: 1px solid rgba(250, 204, 21, 0.22); }
+    .chip.blue { background: rgba(56, 189, 248, 0.12); color: #bae6fd; border: 1px solid rgba(56, 189, 248, 0.22); }
+    .chip.red { background: rgba(251, 113, 133, 0.12); color: #fecdd3; border: 1px solid rgba(251, 113, 133, 0.22); }
+
+    .muted { color: var(--muted); }
+    .strong { font-weight: 900; }
+    .money { font-weight: 950; color: #bbf7d0; }
+    .scroll { overflow-x: auto; }
+    .event-list { display: grid; gap: 10px; max-height: 480px; overflow: auto; padding-right: 4px; }
+    .event { padding: 12px; background: rgba(15, 23, 42, 0.46); border: 1px solid rgba(148, 163, 184, 0.12); border-radius: 14px; line-height: 1.35; }
+    .event small { display: block; color: var(--muted); margin-top: 4px; }
+    .footer-note { color: var(--muted); line-height: 1.55; font-size: 0.88rem; margin-top: 16px; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 980px) {
+      header { flex-direction: column; }
+      .grid-4, .grid-main { grid-template-columns: 1fr; }
+      .chart-wrap { height: 460px; }
+      th, td { padding: 10px 9px; }
+    }
+  </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans">
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Dashboard Quiniela Mundialista 2026</h1>
+        <p class="subtitle">Ranking automático de la quiniela familiar. La página consulta resultados, calcula puntos y actualiza la gráfica sin capturar datos manualmente.</p>
+      </div>
+      <div class="badge">🏆 Bolsa: $9,600</div>
+    </header>
 
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
-        <header class="text-center mb-10">
-            <h1 class="text-4xl font-extrabold tracking-tight text-white mb-2 uppercase">
-                Sorteo Quinela 2026
-            </h1>
-            <p class="text-slate-400">México • USA • Canadá | Asignación Aleatoria por Bombos</p>
-        </header>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            
-            <div id="card-0" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 1</span>
-                        <span id="count-0" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-1">Participantes</h3>
-                    <p class="text-xs text-slate-400 mb-4">Quién recibe la selección</p>
-                </div>
-                <div>
-                    <div id="display-0" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
-                        -
-                    </div>
-                    <button id="btn-0" onclick="drawParticipant()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed">
-                        Elegir
-                    </button>
-                </div>
-            </div>
-
-            <div id="card-1" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 2</span>
-                        <span id="count-1" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-1">Selección Alta</h3>
-                    <p class="text-xs text-slate-400 mb-4">Primer bombo de nivel</p>
-                </div>
-                <div>
-                    <div id="display-1" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
-                        -
-                    </div>
-                    <button id="btn-1" onclick="drawAlta()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed" disabled>
-                        Elegir
-                    </button>
-                </div>
-            </div>
-
-            <div id="card-2" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 3</span>
-                        <span id="count-2" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-1">Selección Media</h3>
-                    <p class="text-xs text-slate-400 mb-4">Segundo bombo de nivel</p>
-                </div>
-                <div>
-                    <div id="display-2" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
-                        -
-                    </div>
-                    <button id="btn-2" onclick="drawMedia()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed" disabled>
-                        Elegir
-                    </button>
-                </div>
-            </div>
-
-            <div id="card-3" class="bombo-card bg-slate-800 rounded-xl p-5 border-2 border-slate-700 flex flex-col justify-between min-h-[220px]">
-                <div>
-                    <div class="flex justify-between items-center mb-3">
-                        <span class="text-xs font-bold uppercase tracking-wider text-blue-400">Paso 4</span>
-                        <span id="count-3" class="text-xs bg-slate-700 px-2 py-0.5 rounded text-slate-300">16 restantes</span>
-                    </div>
-                    <h3 class="text-lg font-bold text-white mb-1">Selección Baja</h3>
-                    <p class="text-xs text-slate-400 mb-4">Tercer bombo de nivel</p>
-                </div>
-                <div>
-                    <div id="display-3" class="text-xl font-bold text-center py-4 bg-slate-950/50 rounded-lg mb-4 text-slate-400 h-14 flex items-center justify-center border border-slate-800">
-                        -
-                    </div>
-                    <button id="btn-3" onclick="drawBaja()" class="w-full bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500 text-white font-semibold py-2 px-4 rounded-lg transition-colors cursor-pointer disabled:cursor-not-allowed" disabled>
-                        Elegir
-                    </button>
-                </div>
-            </div>
-
+    <section class="panel" style="margin-bottom: 16px;">
+      <div class="panel-header">
+        <div>
+          <h2 class="panel-title">Actualización automática</h2>
+          <!--<p class="subtitle" style="font-size: 0.92rem; margin-top: 4px;">Fuente principal: WorldCup2026 API. Respaldo: openfootball/worldcup.json.</p>-->
         </div>
-
-        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-xl">
-            <div class="px-6 py-4 bg-slate-750 border-b border-slate-700 flex justify-between items-center">
-                <h2 class="text-lg font-bold text-white">Resultados del Sorteo</h2>
-                <span id="table-progress" class="text-sm text-slate-400">Progreso: 0 / 16</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-slate-900/50 text-slate-300 text-xs uppercase tracking-wider border-b border-slate-700">
-                            <th class="py-3 px-6">#</th>
-                            <th class="py-3 px-6">Participante</th>
-                            <th class="py-3 px-6">Selección Alta</th>
-                            <th class="py-3 px-6">Selección Media</th>
-                            <th class="py-3 px-6">Selección Baja</th>
-                            <th class="py-3 px-6 text-right">Notas de Validación</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-tbody" class="divide-y divide-slate-700/50 text-sm">
-                        <tr id="empty-row" class="text-slate-500">
-                            <td colspan="6" class="py-10 text-center font-medium">Inicia el sorteo para ver los cruces aquí.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="controls">
+          <button id="refresh-btn">Actualizar puntos</button>
+          <button id="clear-cache-btn" class="button-secondary">Limpiar caché</button>
         </div>
-    </div>
+      </div>
+      <div class="panel-body">
+        <div class="chips">
+          <span class="chip blue" id="source-chip">Fuente: pendiente</span>
+          <span class="chip" id="last-update-chip">Última actualización: -</span>
+          <span class="chip" id="cache-chip">Caché: 5 min</span>
+          <span class="chip green">Gana +3</span>
+          <span class="chip green">Empata +1</span>
+          <span class="chip yellow">Pasa de fase +4</span>
+          <span class="chip yellow">Campeón +10</span>
+        </div>
+        <div id="message" class="message"></div>
+        <!--<p class="footer-note">Nota: en penales, el partido suma como empate para ambos equipos; el ganador de la tanda suma el pase de fase. Si la fuente no indica ganador por penales, el dashboard lo avisará en los eventos.</p>-->
+      </div>
+    </section>
 
-    <script>
-        // Listas iniciales de datos crudos proporcionados
-        let participantes = ["Michelle", "Giby", "Ancel", "Cesar", "Emi", "Braulio", "Noe", "Luis", "Bruno", "Ivan", "Arturo", "Daniel", "Diego", "Alexis", "Jhovani", "Santiago"];
-        
-        // Mapeo exhaustivo de selecciones con su grupo correspondiente según el fixture oficial
-        let bomboAlta = [
-            { name: "Francia #1", group: "I" }, { name: "España #2", group: "H" },
-            { name: "Argentina #3", group: "J" }, { name: "Inglaterra #4", group: "L" },
-            { name: "Portugal #5", group: "K" }, { name: "Brasil #6", group: "C" },
-            { name: "Países Bajos #7", group: "F" }, { name: "Marruecos #8", group: "C" },
-            { name: "Bélgica #9", group: "G" }, { name: "Alemania #10", group: "E" },
-            { name: "Croacia #11", group: "L" }, { name: "Colombia #13", group: "K" },
-            { name: "Senegal #14", group: "I" }, { name: "México #15", group: "A" },
-            { name: "Estados Unidos #16", group: "D" }, { name: "Uruguay #17", group: "H" }
-        ];
+    <section class="grid grid-4" style="margin-bottom: 16px;">
+      <div class="panel stat"><div class="stat-label">Líder actual</div><div class="stat-value" id="leader-stat">-</div><div class="stat-small" id="leader-small">Sin puntos todavía</div></div>
+      <div class="panel stat"><div class="stat-label">Partidos procesados</div><div class="stat-value" id="matches-stat">0</div><div class="stat-small">Solo partidos terminados con marcador</div></div>
+      <div class="panel stat"><div class="stat-label">Puntos del líder</div><div class="stat-value" id="points-stat">0</div><div class="stat-small">Incluye partidos, fases y campeón</div></div>
+      <div class="panel stat"><div class="stat-label">Premios</div><div class="stat-value">$5k / $3k / $1.6k</div><div class="stat-small">1.º, 2.º y 3.º lugar</div></div>
+    </section>
 
-        let bomboMedia = [
-            { name: "Japón #18", group: "F" }, { name: "Suiza #19", group: "B" },
-            { name: "Irán #21", group: "G" }, { name: "Turquía #22", group: "D" },
-            { name: "Ecuador #23", group: "E" }, { name: "Austria #24", group: "J" },
-            { name: "Corea del Sur #25", group: "A" }, { name: "Australia #27", group: "D" },
-            { name: "Argelia #28", group: "J" }, { name: "Egipto #29", group: "G" },
-            { name: "Canadá #30", group: "B" }, { name: "Noruega #31", group: "I" },
-            { name: "Panamá #33", group: "L" }, { name: "Costa de Marfil #34", group: "E" },
-            { name: "Suecia #38", group: "F" }, { name: "Paraguay #40", group: "D" }
-        ];
+    <section class="grid grid-main" style="margin-bottom: 16px;">
+      <div class="panel">
+        <div class="panel-header"><h2 class="panel-title">Ranking general</h2><span class="muted">Gráfica de barras</span></div>
+        <div class="panel-body"><div class="chart-wrap"><canvas id="ranking-chart"></canvas></div></div>
+      </div>
 
-        let bomboBaja = [
-            { name: "Chequia #41", group: "A" }, { name: "Escocia #43", group: "C" },
-            { name: "Túnez #44", group: "F" }, { name: "RD Congo #46", group: "K" },
-            { name: "Uzbekistán #50", group: "K" }, { name: "Qatar #55", group: "B" },
-            { name: "Irak #57", group: "I" }, { name: "Sudáfrica #60", group: "A" },
-            { name: "Arabia Saudita #61", group: "H" }, { name: "Jordania #63", group: "J" },
-            { name: "Bosnia y Herzegovina #65", group: "B" }, { name: "Cabo Verde #69", group: "H" },
-            { name: "Ghana #74", group: "L" }, { name: "Curazao #82", group: "E" },
-            { name: "Haití #83", group: "C" }, { name: "Nueva Zelanda #85", group: "G" }
-        ];
+      <div class="panel">
+        <div class="panel-header"><h2 class="panel-title">Detalle por participante</h2></div>
+        <div class="panel-body">
+          <select id="participant-select" style="width: 100%; margin-bottom: 14px;"></select>
+          <div class="scroll">
+            <table>
+              <thead><tr><th>Selección</th><th>G</th><th>E</th><th>Pases</th><th>Total</th></tr></thead>
+              <tbody id="participant-detail-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
 
-        // Estado interno de la ronda actual
-        let currentDraw = { participant: null, alta: null, media: null, baja: null };
-        let currentStep = 0; // 0: Part, 1: Alta, 2: Media, 3: Baja
-        let totalCompleted = 0;
+    <section class="panel" style="margin-bottom: 16px;">
+      <div class="panel-header"><h2 class="panel-title">Tabla de posiciones</h2><span class="muted">Premios automáticos según posición</span></div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Lugar</th><th>Participante</th><th>Selecciones</th><th>Total</th><th>Premio</th></tr></thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+      </div>
+    </section>
 
-        // Inicializar interfaz visual
-        updateCounters();
-        highlightActiveCard();
+    <section class="grid grid-main" style="margin-bottom: 16px;">
+      <div class="panel">
+        <div class="panel-header"><h2 class="panel-title">Asignaciones reales del sorteo</h2></div>
+        <div class="scroll">
+          <table>
+            <thead><tr><th>#</th><th>Participante</th><th>Alta</th><th>Media</th><th>Baja</th><th>Nota</th></tr></thead>
+            <tbody id="assignments-body"></tbody>
+          </table>
+        </div>
+      </div>
 
-        function updateCounters() {
-            document.getElementById('count-0').innerText = `${participantes.length} restantes`;
-            document.getElementById('count-1').innerText = `${bomboAlta.length} restantes`;
-            document.getElementById('count-2').innerText = `${bomboMedia.length} restantes`;
-            document.getElementById('count-3').innerText = `${bomboBaja.length} restantes`;
-            document.getElementById('table-progress').innerText = `Progreso: ${totalCompleted} / 16`;
+      <div class="panel">
+        <div class="panel-header"><h2 class="panel-title">Últimos movimientos de puntos</h2></div>
+        <div class="panel-body"><div id="events-list" class="event-list"></div></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><h2 class="panel-title">Partidos tomados en cuenta</h2><span class="muted">Últimos terminados detectados</span></div>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>Fecha</th><th>Fase</th><th>Partido</th><th>Marcador</th><th>Fuente</th></tr></thead>
+          <tbody id="matches-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const CONFIG = {
+      CACHE_KEY: "quiniela_mundial_2026_cache_v2",
+      CACHE_TTL_MS: 5 * 60 * 1000,
+      PRIMARY_URL: "https://worldcup26.ir/get/games",
+      FALLBACK_URL: "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json"
+    };
+
+    const POINTS = { win: 3, draw: 1, phase: 4, champion: 10 };
+    const PRIZES = { 1: 5000, 2: 3000, 3: 1600 };
+
+    const assignments = [
+      { participant: "Diego", teams: ["United States", "Australia", "South Africa"], display: ["Estados Unidos #16", "Australia #27", "Sudáfrica #60"], groups: ["D", "D", "A"], note: "2 del mismo grupo" },
+      { participant: "Bruno", teams: ["Senegal", "Norway", "Saudi Arabia"], display: ["Senegal #14", "Noruega #31", "Arabia Saudita #61"], groups: ["I", "I", "H"], note: "2 del mismo grupo" },
+      { participant: "Ivan", teams: ["Argentina", "Algeria", "Cape Verde"], display: ["Argentina #3", "Argelia #28", "Cabo Verde #69"], groups: ["J", "J", "H"], note: "2 del mismo grupo" },
+      { participant: "Giby", teams: ["Colombia", "Iran", "Curacao"], display: ["Colombia #13", "Irán #21", "Curazao #82"], groups: ["K", "G", "E"], note: "Correcto" },
+      { participant: "Daniel", teams: ["Morocco", "South Korea", "Bosnia and Herzegovina"], display: ["Marruecos #8", "Corea del Sur #25", "Bosnia y Herzegovina #65"], groups: ["C", "A", "B"], note: "Correcto" },
+      { participant: "Ancel", teams: ["Belgium", "Austria", "New Zealand"], display: ["Bélgica #9", "Austria #24", "Nueva Zelanda #85"], groups: ["G", "J", "G"], note: "2 del mismo grupo" },
+      { participant: "Arturo", teams: ["Uruguay", "Switzerland", "Iraq"], display: ["Uruguay #17", "Suiza #19", "Irak #57"], groups: ["H", "B", "I"], note: "Correcto" },
+      { participant: "Santiago", teams: ["France", "Ecuador", "Czech Republic"], display: ["Francia #1", "Ecuador #23", "Chequia #41"], groups: ["I", "E", "A"], note: "Correcto" },
+      { participant: "Braulio", teams: ["Croatia", "Sweden", "Qatar"], display: ["Croacia #11", "Suecia #38", "Qatar #55"], groups: ["L", "F", "B"], note: "Correcto" },
+      { participant: "Alexis", teams: ["Spain", "Egypt", "Jordan"], display: ["España #2", "Egipto #29", "Jordania #63"], groups: ["H", "G", "J"], note: "Correcto" },
+      { participant: "Luis", teams: ["Mexico", "Ivory Coast", "Ghana"], display: ["México #15", "Costa de Marfil #34", "Ghana #74"], groups: ["A", "E", "L"], note: "Correcto" },
+      { participant: "Michelle", teams: ["Germany", "Canada", "DR Congo"], display: ["Alemania #10", "Canadá #30", "RD Congo #46"], groups: ["E", "B", "K"], note: "Correcto" },
+      { participant: "Jhovani", teams: ["England", "Paraguay", "Tunisia"], display: ["Inglaterra #4", "Paraguay #40", "Túnez #44"], groups: ["L", "D", "F"], note: "Correcto" },
+      { participant: "Cesar", teams: ["Portugal", "Japan", "Scotland"], display: ["Portugal #5", "Japón #18", "Escocia #43"], groups: ["K", "F", "C"], note: "Correcto" },
+      { participant: "Noe", teams: ["Brazil", "Turkey", "Uzbekistan"], display: ["Brasil #6", "Turquía #22", "Uzbekistán #50"], groups: ["C", "D", "K"], note: "Correcto" },
+      { participant: "Emi", teams: ["Netherlands", "Panama", "Haiti"], display: ["Países Bajos #7", "Panamá #33", "Haití #83"], groups: ["F", "L", "C"], note: "Correcto" }
+    ];
+
+    const teamDisplayName = new Map();
+    assignments.forEach(row => row.teams.forEach((team, index) => teamDisplayName.set(normalizeName(team), row.display[index])));
+
+    const aliases = {
+      "unitedstates": "unitedstates",
+      "usa": "unitedstates",
+      "unitedstatesofamerica": "unitedstates",
+      "estadosunidos": "unitedstates",
+      "southafrica": "southafrica",
+      "sudafrica": "southafrica",
+      "czechia": "czechrepublic",
+      "czechrepublic": "czechrepublic",
+      "chequia": "czechrepublic",
+      "czechrep": "czechrepublic",
+      "southkorea": "southkorea",
+      "korea republic": "southkorea",
+      "korearepublic": "southkorea",
+      "coreadelsur": "southkorea",
+      "bosniaandherzegovina": "bosniaandherzegovina",
+      "bosniaherzegovina": "bosniaandherzegovina",
+      "bosniayherzegovina": "bosniaandherzegovina",
+      "ivorycoast": "ivorycoast",
+      "cotedivoire": "ivorycoast",
+      "côtedivoire": "ivorycoast",
+      "costademarfil": "ivorycoast",
+      "drc": "drcongo",
+      "drcongo": "drcongo",
+      "rdcongo": "drcongo",
+      "democraticrepublicofcongo": "drcongo",
+      "congodr": "drcongo",
+      "capeverde": "capeverde",
+      "caboverde": "capeverde",
+      "curacao": "curacao",
+      "curaçao": "curacao",
+      "netherlands": "netherlands",
+      "holland": "netherlands",
+      "paisesbajos": "netherlands",
+      "paísesbajos": "netherlands",
+      "turkiye": "turkey",
+      "turkey": "turkey",
+      "turquia": "turkey",
+      "türkiye": "turkey",
+      "saudiarabia": "saudiarabia",
+      "arabiasaudi": "saudiarabia",
+      "arabiasaudita": "saudiarabia",
+      "newzealand": "newzealand",
+      "nuevazelanda": "newzealand",
+      "japan": "japan",
+      "japon": "japan",
+      "méxico": "mexico",
+      "mexico": "mexico",
+      "panama": "panama",
+      "panamá": "panama",
+      "spain": "spain",
+      "espana": "spain",
+      "españa": "spain",
+      "germany": "germany",
+      "alemania": "germany",
+      "france": "france",
+      "francia": "france",
+      "england": "england",
+      "inglaterra": "england",
+      "portugal": "portugal",
+      "brazil": "brazil",
+      "brasil": "brazil",
+      "argentina": "argentina",
+      "belgium": "belgium",
+      "belgica": "belgium",
+      "bélgica": "belgium",
+      "croatia": "croatia",
+      "croacia": "croatia",
+      "colombia": "colombia",
+      "senegal": "senegal",
+      "uruguay": "uruguay",
+      "morocco": "morocco",
+      "marruecos": "morocco",
+      "switzerland": "switzerland",
+      "suiza": "switzerland",
+      "iran": "iran",
+      "irán": "iran",
+      "ecuador": "ecuador",
+      "austria": "austria",
+      "australia": "australia",
+      "algeria": "algeria",
+      "argelia": "algeria",
+      "egypt": "egypt",
+      "egipto": "egypt",
+      "canada": "canada",
+      "canadá": "canada",
+      "norway": "norway",
+      "noruega": "norway",
+      "sweden": "sweden",
+      "suecia": "sweden",
+      "paraguay": "paraguay",
+      "scotland": "scotland",
+      "escocia": "scotland",
+      "tunisia": "tunisia",
+      "túnez": "tunisia",
+      "tunez": "tunisia",
+      "uzbekistan": "uzbekistan",
+      "uzbekistán": "uzbekistan",
+      "qatar": "qatar",
+      "irak": "iraq",
+      "iraq": "iraq",
+      "jordan": "jordan",
+      "jordania": "jordan",
+      "ghana": "ghana",
+      "haiti": "haiti",
+      "haití": "haiti"
+    };
+
+    const canonicalName = {
+      unitedstates: "United States", southafrica: "South Africa", czechrepublic: "Czech Republic", southkorea: "South Korea",
+      bosniaandherzegovina: "Bosnia and Herzegovina", ivorycoast: "Ivory Coast", drcongo: "DR Congo", capeverde: "Cape Verde",
+      curacao: "Curacao", netherlands: "Netherlands", turkey: "Turkey", saudiarabia: "Saudi Arabia", newzealand: "New Zealand",
+      japan: "Japan", mexico: "Mexico", panama: "Panama", spain: "Spain", germany: "Germany", france: "France", england: "England",
+      portugal: "Portugal", brazil: "Brazil", argentina: "Argentina", belgium: "Belgium", croatia: "Croatia", colombia: "Colombia",
+      senegal: "Senegal", uruguay: "Uruguay", morocco: "Morocco", switzerland: "Switzerland", iran: "Iran", ecuador: "Ecuador",
+      austria: "Austria", australia: "Australia", algeria: "Algeria", egypt: "Egypt", canada: "Canada", norway: "Norway",
+      sweden: "Sweden", paraguay: "Paraguay", scotland: "Scotland", tunisia: "Tunisia", uzbekistan: "Uzbekistan", qatar: "Qatar",
+      iraq: "Iraq", jordan: "Jordan", ghana: "Ghana", haiti: "Haiti"
+    };
+
+    let selectedParticipant = assignments[0].participant;
+    let rankingChart = null;
+    let latestResults = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAssignments();
+      setupControls();
+      renderEmptyDashboard("Listo para consultar resultados. Presiona ‘Actualizar puntos’. ");
+      loadFromCacheOrStart();
+    });
+
+    function setupControls() {
+      document.getElementById("refresh-btn").addEventListener("click", () => refreshData({ force: true }));
+      document.getElementById("clear-cache-btn").addEventListener("click", () => {
+        localStorage.removeItem(CONFIG.CACHE_KEY);
+        showMessage("Caché limpiado. Presiona ‘Actualizar puntos’ para consultar de nuevo.", "ok");
+        document.getElementById("cache-chip").textContent = "Caché: limpio";
+      });
+      const select = document.getElementById("participant-select");
+      select.innerHTML = assignments.map(row => `<option value="${escapeHtml(row.participant)}">${escapeHtml(row.participant)}</option>`).join("");
+      select.addEventListener("change", event => {
+        selectedParticipant = event.target.value;
+        if (latestResults) renderParticipantDetail(selectedParticipant, latestResults);
+      });
+    }
+
+    function loadFromCacheOrStart() {
+      const cached = getCachedPayload();
+      if (cached) {
+        processAndRender(cached.payload, `Cargué datos guardados en caché. Presiona ‘Actualizar puntos’ para forzar consulta nueva.`);
+        document.getElementById("cache-chip").textContent = "Caché: usado";
+      }
+    }
+
+    async function refreshData({ force = false } = {}) {
+      if (!force) {
+        const cached = getCachedPayload();
+        if (cached) {
+          processAndRender(cached.payload, "Datos cargados desde caché local.");
+          return;
+        }
+      }
+
+      setLoading(true);
+      showMessage("Consultando resultados del Mundial…", "warn");
+
+      try {
+        const payload = await fetchWorldCupData();
+        localStorage.setItem(CONFIG.CACHE_KEY, JSON.stringify({ createdAt: Date.now(), payload }));
+        document.getElementById("cache-chip").textContent = "Caché: actualizado";
+        processAndRender(payload, `Datos actualizados correctamente desde ${payload.sourceName}.`);
+      } catch (error) {
+        console.error(error);
+        showMessage(`No pude obtener resultados: ${error.message}. Si estás en GitHub Pages, revisa la consola por posible CORS o caída temporal de la fuente.`, "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function fetchWorldCupData() {
+      const errors = [];
+      try {
+        const primary = await fetchJson(CONFIG.PRIMARY_URL);
+        return { source: "worldcup26", sourceName: "WorldCup2026 API", raw: primary, fetchedAt: new Date().toISOString() };
+      } catch (error) {
+        errors.push(`WorldCup2026 API: ${error.message}`);
+      }
+
+      try {
+        const fallback = await fetchJson(CONFIG.FALLBACK_URL);
+        return { source: "openfootball", sourceName: "openfootball/worldcup.json", raw: fallback, fetchedAt: new Date().toISOString(), warnings: errors };
+      } catch (error) {
+        errors.push(`openfootball: ${error.message}`);
+      }
+
+      throw new Error(errors.join(" | "));
+    }
+
+    async function fetchJson(url) {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return await response.json();
+    }
+
+    function getCachedPayload() {
+      try {
+        const text = localStorage.getItem(CONFIG.CACHE_KEY);
+        if (!text) return null;
+        const parsed = JSON.parse(text);
+        if (!parsed.createdAt || !parsed.payload) return null;
+        const age = Date.now() - parsed.createdAt;
+        if (age > CONFIG.CACHE_TTL_MS) return null;
+        return parsed;
+      } catch { return null; }
+    }
+
+    function processAndRender(payload, message) {
+      const matches = normalizeMatches(payload);
+      const results = calculateQuiniela(matches);
+      latestResults = results;
+      renderDashboard(results, message, payload);
+    }
+
+    function normalizeMatches(payload) {
+      if (payload.source === "worldcup26") return normalizeWorldCup26(payload.raw);
+      if (payload.source === "openfootball") return normalizeOpenFootball(payload.raw);
+      return [];
+    }
+
+    function normalizeWorldCup26(raw) {
+      const rows = Array.isArray(raw) ? raw : (raw.games || raw.data || raw.matches || []);
+      return rows.map(item => {
+        const home = item.home_team_name_en || item.home_team_name || item.homeTeam || item.home_team || item.home_team_label || "";
+        const away = item.away_team_name_en || item.away_team_name || item.awayTeam || item.away_team || item.away_team_label || "";
+        const homeScore = toNumber(item.home_score ?? item.homeScore ?? item.home_goals ?? item.homeGoals);
+        const awayScore = toNumber(item.away_score ?? item.awayScore ?? item.away_goals ?? item.awayGoals);
+        const stage = normalizeStage(item.type || item.group || item.round || item.stage);
+        const finished = parseFinished(item.finished) || parseStatusFinished(item.time_elapsed || item.status || item.match_status);
+        return {
+          id: item.id || item._id || "",
+          source: "WorldCup2026 API",
+          home, away,
+          homeKey: teamKey(home), awayKey: teamKey(away),
+          homeScore, awayScore,
+          homePenalties: toNumber(item.home_penalties ?? item.home_penalty ?? item.penalty_home ?? item.home_penalty_score),
+          awayPenalties: toNumber(item.away_penalties ?? item.away_penalty ?? item.penalty_away ?? item.away_penalty_score),
+          winnerKey: teamKey(item.winner_team_name_en || item.winner_team_name || item.winner || item.winner_name || ""),
+          stage,
+          stageLabel: stageLabel(stage, item.group || item.type || item.round),
+          group: item.group && /^[A-L]$/.test(String(item.group).trim()) ? String(item.group).trim() : "",
+          date: item.local_date || item.date || item.utc_date || item.start_time || "",
+          finished,
+          raw: item
+        };
+      });
+    }
+
+    function normalizeOpenFootball(raw) {
+      const rows = raw.matches || raw.games || raw.fixtures || [];
+      return rows.map(item => {
+        const score = item.score || {};
+        const ft = Array.isArray(score.ft) ? score.ft : [undefined, undefined];
+        const home = item.team1 || item.home_team || item.homeTeam || "";
+        const away = item.team2 || item.away_team || item.awayTeam || "";
+        const stage = normalizeStage(item.round || item.group || item.stage || item.type);
+        return {
+          id: `${item.date || ""}-${home}-${away}`,
+          source: "openfootball/worldcup.json",
+          home, away,
+          homeKey: teamKey(home), awayKey: teamKey(away),
+          homeScore: toNumber(ft[0] ?? score.home ?? score.team1 ?? item.home_score),
+          awayScore: toNumber(ft[1] ?? score.away ?? score.team2 ?? item.away_score),
+          homePenalties: toNumber((score.p || score.penalties || [])[0]),
+          awayPenalties: toNumber((score.p || score.penalties || [])[1]),
+          winnerKey: teamKey(item.winner || item.winner_team || score.winner || ""),
+          stage,
+          stageLabel: stageLabel(stage, item.round || item.group),
+          group: extractGroupLetter(item.group || item.round),
+          date: item.date || "",
+          finished: !!score.ft,
+          raw: item
+        };
+      });
+    }
+
+    function calculateQuiniela(matches) {
+      const results = createEmptyResults();
+      const events = [];
+      const processedMatches = [];
+      const finished = matches.filter(match => isFinishedMatch(match));
+
+      finished.forEach(match => {
+        const homeKnown = !!results.teams[match.homeKey];
+        const awayKnown = !!results.teams[match.awayKey];
+        if (!homeKnown && !awayKnown) return;
+
+        processedMatches.push(match);
+        const winnerKey = getWinnerKey(match);
+        const isDrawForPoints = match.homeScore === match.awayScore;
+
+        if (homeKnown) {
+          if (isDrawForPoints) addMatchPoints(results.teams[match.homeKey], POINTS.draw, "draws");
+          else if (winnerKey === match.homeKey) addMatchPoints(results.teams[match.homeKey], POINTS.win, "wins");
+          else results.teams[match.homeKey].losses += 1;
         }
 
-        function getRandomIndex(array) {
-            return Math.floor(Math.random() * array.length);
+        if (awayKnown) {
+          if (isDrawForPoints) addMatchPoints(results.teams[match.awayKey], POINTS.draw, "draws");
+          else if (winnerKey === match.awayKey) addMatchPoints(results.teams[match.awayKey], POINTS.win, "wins");
+          else results.teams[match.awayKey].losses += 1;
         }
 
-        function drawFromArray(array) {
-            const index = getRandomIndex(array);
-            return array.splice(index, 1)[0];
+        if (homeKnown || awayKnown) {
+          const desc = `${displayTeam(match.homeKey, match.home)} ${match.homeScore}-${match.awayScore} ${displayTeam(match.awayKey, match.away)}`;
+          if (homeKnown) events.push(buildEvent(match, match.homeKey, `${desc}: ${matchEventText(match.homeKey, winnerKey, isDrawForPoints)}`, isDrawForPoints ? POINTS.draw : (winnerKey === match.homeKey ? POINTS.win : 0)));
+          if (awayKnown) events.push(buildEvent(match, match.awayKey, `${desc}: ${matchEventText(match.awayKey, winnerKey, isDrawForPoints)}`, isDrawForPoints ? POINTS.draw : (winnerKey === match.awayKey ? POINTS.win : 0)));
+        }
+      });
+
+      applyGroupAdvanceBonuses(finished, results, events);
+      applyKnockoutBonuses(finished, results, events);
+      rollupParticipants(results);
+      results.events = events.filter(Boolean).sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 120);
+      results.processedMatches = processedMatches.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+      return results;
+    }
+
+    function createEmptyResults() {
+      const teamResults = {};
+      const participantResults = {};
+      assignments.forEach(row => {
+        participantResults[row.participant] = { participant: row.participant, total: 0, teams: row.teams.map(team => teamKey(team)) };
+        row.teams.forEach((team, index) => {
+          const key = teamKey(team);
+          teamResults[key] = {
+            key,
+            team: team,
+            display: row.display[index],
+            participant: row.participant,
+            group: row.groups[index],
+            wins: 0,
+            draws: 0,
+            losses: 0,
+            matchPoints: 0,
+            phasePasses: 0,
+            phasePoints: 0,
+            champion: false,
+            championPoints: 0,
+            total: 0
+          };
+        });
+      });
+      return { teams: teamResults, participants: participantResults, events: [], processedMatches: [] };
+    }
+
+    function addMatchPoints(stats, points, type) {
+      if (type === "wins") stats.wins += 1;
+      if (type === "draws") stats.draws += 1;
+      stats.matchPoints += points;
+      stats.total += points;
+    }
+
+    function applyGroupAdvanceBonuses(finished, results, events) {
+      const groupMatches = finished.filter(match => match.stage === "group");
+      const allGroupsComplete = groupMatches.length >= 72;
+      const advancedKeys = new Set();
+
+      // Opción confiable cuando el bracket ya tiene nombres: todo equipo que aparece en una eliminatoria avanzó de grupos.
+      finished.filter(match => match.stage !== "group" && match.stage !== "third").forEach(match => {
+        if (results.teams[match.homeKey]) advancedKeys.add(match.homeKey);
+        if (results.teams[match.awayKey]) advancedKeys.add(match.awayKey);
+      });
+
+      // Si la fase de grupos terminó completa, calculamos 1.º, 2.º y 8 mejores terceros.
+      if (allGroupsComplete) {
+        const tables = buildGroupTables(groupMatches);
+        const thirdPlaces = [];
+        Object.values(tables).forEach(rows => {
+          rows.sort(compareGroupRows);
+          rows.slice(0, 2).forEach(row => advancedKeys.add(row.key));
+          if (rows[2]) thirdPlaces.push(rows[2]);
+        });
+        thirdPlaces.sort(compareGroupRows).slice(0, 8).forEach(row => advancedKeys.add(row.key));
+      }
+
+      advancedKeys.forEach(key => {
+        if (!results.teams[key]) return;
+        const stats = results.teams[key];
+        if (stats.phasePasses >= 1) return;
+        stats.phasePasses += 1;
+        stats.phasePoints += POINTS.phase;
+        stats.total += POINTS.phase;
+        events.push({ date: "2026-06-28", participant: stats.participant, team: stats.display, description: `${stats.display} pasa de fase de grupos`, points: POINTS.phase });
+      });
+    }
+
+    function buildGroupTables(groupMatches) {
+      const tables = {};
+      groupMatches.forEach(match => {
+        if (!match.group) return;
+        tables[match.group] = tables[match.group] || {};
+        [match.homeKey, match.awayKey].forEach(key => {
+          if (!key) return;
+          tables[match.group][key] = tables[match.group][key] || { key, pts: 0, gf: 0, ga: 0, gd: 0, wins: 0 };
+        });
+        const h = tables[match.group][match.homeKey];
+        const a = tables[match.group][match.awayKey];
+        if (!h || !a) return;
+        h.gf += match.homeScore; h.ga += match.awayScore;
+        a.gf += match.awayScore; a.ga += match.homeScore;
+        if (match.homeScore > match.awayScore) { h.pts += 3; h.wins += 1; }
+        else if (match.awayScore > match.homeScore) { a.pts += 3; a.wins += 1; }
+        else { h.pts += 1; a.pts += 1; }
+        h.gd = h.gf - h.ga; a.gd = a.gf - a.ga;
+      });
+      return Object.fromEntries(Object.entries(tables).map(([g, rows]) => [g, Object.values(rows)]));
+    }
+
+    function applyKnockoutBonuses(finished, results, events) {
+      finished.filter(match => match.stage !== "group").forEach(match => {
+        const winnerKey = getWinnerKey(match);
+        if (!winnerKey || !results.teams[winnerKey]) {
+          if (match.stage !== "third" && match.stage !== "final" && match.homeScore === match.awayScore) {
+            events.push({ date: match.date, participant: "Sistema", team: "Penales", description: `No pude detectar ganador por penales en ${safeMatchTitle(match)}. Revisa la fuente si falta un +4.`, points: 0 });
+          }
+          return;
+        }
+        const stats = results.teams[winnerKey];
+
+        if (["r32", "r16", "qf", "sf"].includes(match.stage)) {
+          stats.phasePasses += 1;
+          stats.phasePoints += POINTS.phase;
+          stats.total += POINTS.phase;
+          events.push(buildEvent(match, winnerKey, `${stats.display} pasa de fase (${match.stageLabel})`, POINTS.phase));
         }
 
-        function setDisplay(step, value) {
-            document.getElementById(`display-${step}`).innerText = value;
+        if (match.stage === "final") {
+          stats.champion = true;
+          stats.championPoints += POINTS.champion;
+          stats.total += POINTS.champion;
+          events.push(buildEvent(match, winnerKey, `${stats.display} queda campeón del Mundial`, POINTS.champion));
         }
+      });
+    }
 
-        function highlightActiveCard() {
-            for (let i = 0; i <= 3; i++) {
-                const card = document.getElementById(`card-${i}`);
-                const btn = document.getElementById(`btn-${i}`);
+    function rollupParticipants(results) {
+      Object.values(results.participants).forEach(participant => {
+        participant.total = participant.teams.reduce((sum, key) => sum + (results.teams[key]?.total || 0), 0);
+      });
+    }
 
-                card.classList.remove('bombo-active');
-                btn.disabled = true;
-            }
+    function getWinnerKey(match) {
+      if (!isFinite(match.homeScore) || !isFinite(match.awayScore)) return "";
+      if (match.homeScore > match.awayScore) return match.homeKey;
+      if (match.awayScore > match.homeScore) return match.awayKey;
+      if (isFinite(match.homePenalties) && isFinite(match.awayPenalties)) {
+        if (match.homePenalties > match.awayPenalties) return match.homeKey;
+        if (match.awayPenalties > match.homePenalties) return match.awayKey;
+      }
+      if (match.winnerKey) return match.winnerKey;
+      return "";
+    }
 
-            if (totalCompleted >= 16) return;
+    function isFinishedMatch(match) {
+      return match.finished && isFinite(match.homeScore) && isFinite(match.awayScore) && match.homeKey && match.awayKey;
+    }
 
-            const activeCard = document.getElementById(`card-${currentStep}`);
-            const activeButton = document.getElementById(`btn-${currentStep}`);
+    function normalizeStage(value) {
+      const text = normalizeName(String(value || ""));
+      if (!text) return "group";
+      if (/^[a-l]$/.test(text)) return "group";
+      if (text.includes("group") || text.includes("matchday")) return "group";
+      if (text.includes("r32") || text.includes("roundof32") || text.includes("32")) return "r32";
+      if (text.includes("r16") || text.includes("roundof16") || text.includes("octavos") || text.includes("16")) return "r16";
+      if (text.includes("qf") || text.includes("quarter") || text.includes("cuartos")) return "qf";
+      if (text.includes("sf") || text.includes("semi")) return "sf";
+      if (text.includes("third") || text.includes("3rd") || text.includes("tercer")) return "third";
+      if (text.includes("final")) return "final";
+      return "group";
+    }
 
-            activeCard.classList.add('bombo-active');
-            activeButton.disabled = false;
+    function stageLabel(stage, original = "") {
+      const labels = { group: "Fase de grupos", r32: "Ronda de 32", r16: "Octavos", qf: "Cuartos", sf: "Semifinal", third: "Tercer lugar", final: "Final" };
+      if (stage === "group" && original && /^[A-L]$/.test(String(original).trim())) return `Grupo ${String(original).trim()}`;
+      return labels[stage] || String(original || "Fase");
+    }
+
+    function extractGroupLetter(value) {
+      const match = String(value || "").match(/Group\s+([A-L])/i) || String(value || "").match(/Grupo\s+([A-L])/i) || String(value || "").match(/^([A-L])$/i);
+      return match ? match[1].toUpperCase() : "";
+    }
+
+    function compareGroupRows(a, b) {
+      return (b.pts - a.pts) || (b.gd - a.gd) || (b.gf - a.gf) || (b.wins - a.wins) || a.key.localeCompare(b.key);
+    }
+
+    function matchEventText(teamKeyValue, winnerKey, isDraw) {
+      if (isDraw) return "empate +1";
+      if (teamKeyValue === winnerKey) return "victoria +3";
+      return "derrota +0";
+    }
+
+    function buildEvent(match, teamKeyValue, description, points) {
+      const stats = latestTeamFallback(teamKeyValue);
+      return { date: match.date, participant: stats?.participant || findParticipantByTeamKey(teamKeyValue) || "", team: stats?.display || displayTeam(teamKeyValue), description, points };
+    }
+
+    function latestTeamFallback(teamKeyValue) {
+      return latestResults?.teams?.[teamKeyValue] || null;
+    }
+
+    function findParticipantByTeamKey(teamKeyValue) {
+      const row = assignments.find(item => item.teams.some(team => teamKey(team) === teamKeyValue));
+      return row?.participant || "";
+    }
+
+    function teamKey(value) {
+      const normalized = normalizeName(value);
+      return aliases[normalized] || normalized;
+    }
+
+    function normalizeName(value) {
+      return String(value || "")
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "")
+        .trim();
+    }
+
+    function displayTeam(key, fallback = "") {
+      if (teamDisplayName.has(key)) return teamDisplayName.get(key);
+      return canonicalName[key] || fallback || key;
+    }
+
+    function parseFinished(value) {
+      if (typeof value === "boolean") return value;
+      const text = String(value || "").toLowerCase();
+      return ["true", "finished", "complete", "completed", "final", "ft", "after penalties", "aet"].includes(text);
+    }
+
+    function parseStatusFinished(value) {
+      const text = String(value || "").toLowerCase();
+      return ["finished", "complete", "completed", "final", "ft", "fulltime", "full-time"].includes(text);
+    }
+
+    function toNumber(value) {
+      if (value === null || value === undefined || value === "" || value === "null") return NaN;
+      const number = Number(value);
+      return Number.isFinite(number) ? number : NaN;
+    }
+
+    function safeMatchTitle(match) {
+      return `${match.home || "Local"} vs ${match.away || "Visitante"}`;
+    }
+
+    function renderDashboard(results, message, payload) {
+      latestResults = results;
+      const ranking = getRanking(results);
+      renderStats(ranking, results.processedMatches.length);
+      renderRankingTable(ranking, results);
+      renderChart(ranking);
+      renderParticipantDetail(selectedParticipant, results);
+      renderEvents(results.events);
+      renderMatches(results.processedMatches);
+      document.getElementById("source-chip").textContent = `Fuente: ${payload.sourceName}`;
+      document.getElementById("last-update-chip").textContent = `Última actualización: ${formatDateTime(payload.fetchedAt)}`;
+      showMessage(message, "ok");
+    }
+
+    function renderEmptyDashboard(message) {
+      const results = createEmptyResults();
+      latestResults = results;
+      const ranking = getRanking(results);
+      renderStats(ranking, 0);
+      renderRankingTable(ranking, results);
+      renderChart(ranking);
+      renderParticipantDetail(selectedParticipant, results);
+      renderEvents([]);
+      renderMatches([]);
+      showMessage(message, "warn");
+    }
+
+    function getRanking(results) {
+      return Object.values(results.participants).sort((a, b) => {
+        const diff = b.total - a.total;
+        if (diff !== 0) return diff;
+        const maxA = Math.max(...a.teams.map(key => results.teams[key]?.total || 0));
+        const maxB = Math.max(...b.teams.map(key => results.teams[key]?.total || 0));
+        return (maxB - maxA) || a.participant.localeCompare(b.participant);
+      });
+    }
+
+    function renderStats(ranking, processedCount) {
+      const leader = ranking[0];
+      document.getElementById("leader-stat").textContent = leader?.participant || "-";
+      document.getElementById("leader-small").textContent = leader ? `${leader.total} puntos totales` : "Sin puntos todavía";
+      document.getElementById("matches-stat").textContent = processedCount;
+      document.getElementById("points-stat").textContent = leader?.total || 0;
+    }
+
+    function renderRankingTable(ranking, results) {
+      const body = document.getElementById("ranking-body");
+      body.innerHTML = ranking.map((row, index) => {
+        const place = index + 1;
+        const prize = PRIZES[place] ? `$${PRIZES[place].toLocaleString("es-MX")}` : "-";
+        const teams = row.teams.map(key => {
+          const team = results.teams[key];
+          return `<span class="chip ${team.total > 0 ? "blue" : ""}">${escapeHtml(team.display)}: ${team.total} pts</span>`;
+        }).join("");
+        return `<tr>
+          <td class="rank rank-${place <= 3 ? place : ""}">${place}</td>
+          <td class="strong">${escapeHtml(row.participant)}</td>
+          <td><div class="chips">${teams}</div></td>
+          <td class="strong">${row.total}</td>
+          <td class="money">${prize}</td>
+        </tr>`;
+      }).join("");
+    }
+
+    function renderChart(ranking) {
+      const ctx = document.getElementById("ranking-chart");
+      const labels = ranking.map(row => row.participant);
+      const data = ranking.map(row => row.total);
+      if (rankingChart) rankingChart.destroy();
+      rankingChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [{ label: "Puntos", data, borderWidth: 1, borderRadius: 10 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: context => `${context.raw} puntos` } }
+          },
+          scales: {
+            x: { beginAtZero: true, ticks: { color: "#cbd5e1", precision: 0 }, grid: { color: "rgba(148, 163, 184, 0.12)" } },
+            y: { ticks: { color: "#e5eefc" }, grid: { display: false } }
+          }
         }
+      });
+    }
 
-        function drawParticipant() {
-            if (currentStep !== 0 || participantes.length === 0) return;
+    function renderParticipantDetail(participantName, results) {
+      const participant = results.participants[participantName];
+      if (!participant) return;
+      const body = document.getElementById("participant-detail-body");
+      body.innerHTML = participant.teams.map(key => {
+        const team = results.teams[key];
+        return `<tr>
+          <td><strong>${escapeHtml(team.display)}</strong><br><span class="muted">Grupo ${escapeHtml(team.group)}</span></td>
+          <td>${team.wins}</td>
+          <td>${team.draws}</td>
+          <td>${team.phasePasses}</td>
+          <td class="strong">${team.total}</td>
+        </tr>`;
+      }).join("");
+    }
 
-            currentDraw = { participant: null, alta: null, media: null, baja: null };
+    function renderEvents(events) {
+      const list = document.getElementById("events-list");
+      if (!events.length) {
+        list.innerHTML = `<div class="event muted">Todavía no hay movimientos de puntos. Cuando haya partidos terminados, aparecerán aquí.</div>`;
+        return;
+      }
+      list.innerHTML = events.slice(0, 40).map(event => `<div class="event">
+        <strong>${escapeHtml(event.participant || "Sistema")}</strong> · ${escapeHtml(event.team || "")}
+        <br>${escapeHtml(event.description)}
+        <small>${formatDate(event.date)} · ${event.points > 0 ? "+" + event.points + " pts" : "0 pts"}</small>
+      </div>`).join("");
+    }
 
-            setDisplay(0, "-");
-            setDisplay(1, "-");
-            setDisplay(2, "-");
-            setDisplay(3, "-");
+    function renderMatches(matches) {
+      const body = document.getElementById("matches-body");
+      if (!matches.length) {
+        body.innerHTML = `<tr><td colspan="5" class="muted">No hay partidos terminados detectados todavía.</td></tr>`;
+        return;
+      }
+      body.innerHTML = matches.slice(0, 25).map(match => `<tr>
+        <td>${escapeHtml(formatDate(match.date))}</td>
+        <td>${escapeHtml(match.stageLabel)}</td>
+        <td>${escapeHtml(match.home)} vs ${escapeHtml(match.away)}</td>
+        <td class="strong">${match.homeScore} - ${match.awayScore}${isFinite(match.homePenalties) && isFinite(match.awayPenalties) ? ` (${match.homePenalties}-${match.awayPenalties} pen.)` : ""}</td>
+        <td>${escapeHtml(match.source)}</td>
+      </tr>`).join("");
+    }
 
-            const participant = drawFromArray(participantes);
-            currentDraw.participant = participant;
+    function renderAssignments() {
+      const body = document.getElementById("assignments-body");
+      body.innerHTML = assignments.map((row, index) => `<tr>
+        <td class="strong">${index + 1}</td>
+        <td class="strong">${escapeHtml(row.participant)}</td>
+        <td>${formatAssignment(row.display[0], row.groups[0])}</td>
+        <td>${formatAssignment(row.display[1], row.groups[1])}</td>
+        <td>${formatAssignment(row.display[2], row.groups[2])}</td>
+        <td><span class="chip ${row.note === "Correcto" ? "green" : "yellow"}">${escapeHtml(row.note)}</span></td>
+      </tr>`).join("");
+    }
 
-            setDisplay(0, participant);
+    function formatAssignment(team, group) {
+      return `${escapeHtml(team)} <span class="muted">Grupo ${escapeHtml(group)}</span>`;
+    }
 
-            currentStep = 1;
-            updateCounters();
-            highlightActiveCard();
-        }
+    function showMessage(text, type = "warn") {
+      const el = document.getElementById("message");
+      el.textContent = text;
+      el.className = `message show ${type}`;
+    }
 
-        function drawAlta() {
-            if (currentStep !== 1 || bomboAlta.length === 0) return;
+    function setLoading(isLoading) {
+      document.getElementById("refresh-btn").disabled = isLoading;
+      document.getElementById("refresh-btn").textContent = isLoading ? "Actualizando…" : "Actualizar puntos";
+    }
 
-            const seleccion = drawFromArray(bomboAlta);
-            currentDraw.alta = seleccion;
+    function formatDate(value) {
+      if (!value) return "-";
+      const d = parseFlexibleDate(value);
+      if (!d) return String(value);
+      return d.toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
+    }
 
-            setDisplay(1, `${seleccion.name} - Grupo ${seleccion.group}`);
+    function formatDateTime(value) {
+      const d = value ? new Date(value) : new Date();
+      if (Number.isNaN(d.getTime())) return "-";
+      return d.toLocaleString("es-MX", { dateStyle: "medium", timeStyle: "short" });
+    }
 
-            currentStep = 2;
-            updateCounters();
-            highlightActiveCard();
-        }
+    function parseFlexibleDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      const text = String(value);
+      let d = new Date(text);
+      if (!Number.isNaN(d.getTime())) return d;
+      const m = text.match(/^(\d{2})\/(\d{2})\/(\d{4})\s*(\d{2}:\d{2})?/);
+      if (m) {
+        d = new Date(`${m[3]}-${m[1]}-${m[2]}T${m[4] || "00:00"}:00`);
+        if (!Number.isNaN(d.getTime())) return d;
+      }
+      return null;
+    }
 
-        function drawMedia() {
-            if (currentStep !== 2 || bomboMedia.length === 0) return;
-
-            const seleccion = drawFromArray(bomboMedia);
-            currentDraw.media = seleccion;
-
-            setDisplay(2, `${seleccion.name} - Grupo ${seleccion.group}`);
-
-            currentStep = 3;
-            updateCounters();
-            highlightActiveCard();
-        }
-
-        function drawBaja() {
-            if (currentStep !== 3 || bomboBaja.length === 0) return;
-
-            const gruposActuales = [
-                currentDraw.alta.group,
-                currentDraw.media.group
-            ];
-
-            let opcionesValidas = bomboBaja;
-
-            // Regla: máximo 2 selecciones del mismo grupo.
-            // Si alta y media son del mismo grupo, la baja no puede ser de ese mismo grupo.
-            if (currentDraw.alta.group === currentDraw.media.group) {
-                opcionesValidas = bomboBaja.filter(
-                    seleccion => seleccion.group !== currentDraw.alta.group
-                );
-            }
-
-            if (opcionesValidas.length === 0) {
-                alert("No hay selección baja válida disponible. Se necesita hacer cambio manual con otro participante.");
-                return;
-            }
-
-            const seleccionElegida = opcionesValidas[getRandomIndex(opcionesValidas)];
-            const indexReal = bomboBaja.findIndex(
-                seleccion => seleccion.name === seleccionElegida.name
-            );
-
-            const seleccion = bomboBaja.splice(indexReal, 1)[0];
-            currentDraw.baja = seleccion;
-
-            setDisplay(3, `${seleccion.name} - Grupo ${seleccion.group}`);
-
-            addResultToTable();
-
-            totalCompleted++;
-            currentStep = 0;
-
-            updateCounters();
-            highlightActiveCard();
-        }
-
-        function addResultToTable() {
-            const emptyRow = document.getElementById('empty-row');
-            if (emptyRow) {
-                emptyRow.remove();
-            }
-
-            const tbody = document.getElementById('results-tbody');
-
-            const grupos = [
-                currentDraw.alta.group,
-                currentDraw.media.group,
-                currentDraw.baja.group
-            ];
-
-            const conteoGrupos = {};
-            grupos.forEach(grupo => {
-                conteoGrupos[grupo] = (conteoGrupos[grupo] || 0) + 1;
-            });
-
-            const maxRepetido = Math.max(...Object.values(conteoGrupos));
-
-            let nota = "Correcto";
-            let notaClass = "text-green-400";
-
-            if (maxRepetido === 2) {
-                nota = "Tiene 2 selecciones del mismo grupo";
-                notaClass = "text-yellow-400";
-            }
-
-            const row = document.createElement('tr');
-            row.className = "hover:bg-slate-700/30 transition-colors";
-
-            row.innerHTML = `
-                <td class="py-3 px-6 font-bold">${totalCompleted + 1}</td>
-                <td class="py-3 px-6 font-semibold text-white">${currentDraw.participant}</td>
-                <td class="py-3 px-6">${currentDraw.alta.name} <span class="text-slate-400">(Grupo ${currentDraw.alta.group})</span></td>
-                <td class="py-3 px-6">${currentDraw.media.name} <span class="text-slate-400">(Grupo ${currentDraw.media.group})</span></td>
-                <td class="py-3 px-6">${currentDraw.baja.name} <span class="text-slate-400">(Grupo ${currentDraw.baja.group})</span></td>
-                <td class="py-3 px-6 text-right ${notaClass}">${nota}</td>
-            `;
-
-            tbody.appendChild(row);
-        }
-    </script>
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>'"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[char]));
+    }
+  </script>
 </body>
-</html>            
+</html>
