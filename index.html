@@ -7,44 +7,38 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
-      /* Paleta inspirada en la identidad visual FIFA World Cup 2026 */
-      --bg: #050505;
-      --panel: #101020;
-      --panel-2: #070812;
-      --line: rgba(139, 184, 255, 0.24);
-      --text: #ffffff;
-      --muted: #b8c4dc;
-      --accent: #00dfcf;
-      --accent-dark: #0c1983;
-      --purple: #6a00f4;
-      --blue: #3155ff;
-      --sky: #8bb8ff;
-      --green: #00d050;
-      --green-soft: rgba(0, 208, 80, 0.15);
-      --red: #ff2418;
-      --red-soft: rgba(255, 36, 24, 0.15);
-      --draw: #8bb8ff;
-      --draw-soft: rgba(139, 184, 255, 0.16);
-      --warn: #f7ff00;
-      --warn-soft: rgba(247, 255, 0, 0.14);
-      --chip: rgba(49, 85, 255, 0.20);
-      --gold: #f7ff00;
-      --silver: #8bb8ff;
-      --bronze: #ff7b3a;
-      --magenta: #ec1b72;
-      --orange: #ff4015;
-      --maroon: #8d1013;
+      /* Paleta Selección Mexicana - colores estáticos sin degradados */
+      --bg: #004B3A;
+      --panel: #253126;
+      --panel-2: #F7F7F2;
+      --line: rgba(255, 255, 255, 0.22);
+      --text: #FFFFFF;
+      --muted: #D8E6DA;
+      --accent: #1eb651;
+      --accent-dark: #005743;
+      --green: #39B54A;
+      --green-soft: rgba(57, 181, 74, 0.16);
+      --red: #CE1126;
+      --red-soft: rgba(206, 17, 38, 0.16);
+      --draw: #B5D334;
+      --draw-soft: rgba(181, 211, 52, 0.16);
+      --warn: #B5D334;
+      --warn-soft: rgba(181, 211, 52, 0.18);
+      --chip: rgba(255, 255, 255, 0.12);
+      --gold: #B5D334;
+      --silver: #FFFFFF;
+      --bronze: #CE1126;
+      --lime: #B5D334;
+      --deep-green: #004B3A;
+      --white: #FFFFFF;
+      --black: #0B0B0B;
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background:
-        radial-gradient(circle at 8% 0%, rgba(255, 36, 24, 0.34) 0, transparent 25%),
-        radial-gradient(circle at 78% 4%, rgba(0, 223, 207, 0.26) 0, transparent 28%),
-        radial-gradient(circle at 100% 38%, rgba(106, 0, 244, 0.30) 0, transparent 30%),
-        linear-gradient(135deg, #050505 0%, #0c1983 46%, #050505 100%);
+      background: var(--bg);
       color: var(--text);
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       min-height: 100vh;
@@ -69,7 +63,7 @@
       font-size: clamp(1.75rem, 3vw, 2.75rem);
       letter-spacing: -0.05em;
       line-height: 1.05;
-      text-shadow: 0 0 28px rgba(0, 223, 207, 0.24);
+      text-shadow: 0 0 28px rgba(0, 147, 59, 0.30);
     }
 
     .subtitle { color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
@@ -80,9 +74,9 @@
       gap: 8px;
       padding: 8px 12px;
       border-radius: 999px;
-      background: rgba(0, 223, 207, 0.14);
-      color: #d6fffb;
-      border: 1px solid rgba(0, 223, 207, 0.38);
+      background: rgba(0, 147, 59, 0.14);
+      color: #E6FFF0;
+      border: 1px solid rgba(0, 147, 59, 0.38);
       font-weight: 900;
       white-space: nowrap;
       font-size: 0.9rem;
@@ -95,7 +89,7 @@
     .grid-ranking { grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr); }
 
     .panel {
-      background: linear-gradient(180deg, rgba(16, 16, 32, 0.96), rgba(7, 8, 18, 0.94));
+      background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 18px;
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.34), inset 0 1px 0 rgba(255,255,255,0.03);
@@ -104,7 +98,7 @@
 
     .panel-header {
       padding: 16px 18px;
-      border-bottom: 1px solid rgba(139, 184, 255, 0.18);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.18);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -118,11 +112,11 @@
 
     .stat { padding: 18px; min-height: 112px; }
     .stat.stat-compact { padding: 14px 16px; min-height: 88px; }
-    .stat-label { color: #d4f8ff; font-size: 0.85rem; margin-bottom: 8px; }
+    .stat-label { color: #E6FFF0; font-size: 0.85rem; margin-bottom: 8px; }
     .stat.stat-compact .stat-label { font-size: 0.78rem; margin-bottom: 6px; }
     .stat-value { font-size: 1.85rem; font-weight: 950; line-height: 1.1; letter-spacing: -0.04em; }
     .stat.stat-compact .stat-value { font-size: 1.55rem; }
-    .stat-small { color: #dbeafe; font-size: 0.88rem; margin-top: 10px; line-height: 1.35; }
+    .stat-small { color: #C8D7CE; font-size: 0.88rem; margin-top: 10px; line-height: 1.35; }
     .stat.stat-compact .stat-small { font-size: 0.78rem; margin-top: 7px; }
 
     .summary-panel .panel-body { padding: 12px 14px; }
@@ -133,14 +127,14 @@
       align-items: stretch;
     }
     .summary-item {
-      border: 1px solid rgba(139, 184, 255, 0.18);
-      background: linear-gradient(135deg, rgba(49, 85, 255, 0.16), rgba(0, 223, 207, 0.06));
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: var(--accent-dark);
       border-radius: 14px;
       padding: 10px 12px;
       min-height: 66px;
     }
     .summary-label {
-      color: #d4f8ff;
+      color: #E6FFF0;
       font-size: 0.68rem;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -154,7 +148,7 @@
       line-height: 1.05;
     }
     .summary-small {
-      color: #dbeafe;
+      color: #C8D7CE;
       font-size: 0.68rem;
       margin-top: 4px;
       line-height: 1.25;
@@ -176,32 +170,32 @@
     button {
       border: 0;
       cursor: pointer;
-      background: linear-gradient(135deg, var(--accent), var(--sky));
-      color: #050505;
+      background: var(--accent);
+      color: #0B0B0B;
       transition: transform 0.12s ease, opacity 0.12s ease, background 0.12s ease;
       white-space: nowrap;
     }
 
     button:hover { transform: translateY(-1px); }
     button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
-    .button-secondary { background: linear-gradient(135deg, rgba(106,0,244,0.85), rgba(49,85,255,0.72)); color: var(--text); border: 1px solid rgba(139, 184, 255, 0.28); }
-    select { background: rgba(5, 5, 5, 0.72); border-color: rgba(139, 184, 255, 0.28); }
+    .button-secondary { background: var(--red); color: var(--white); border: 1px solid rgba(255, 255, 255, 0.28); }
+    select { background: rgba(5, 5, 5, 0.72); border-color: rgba(255, 255, 255, 0.28); }
     .panel-title { color: #ffffff; }
 
     .message {
       padding: 12px 14px;
       border-radius: 12px;
-      background: rgba(247, 255, 0, 0.10);
-      color: #fbff8a;
-      border: 1px solid rgba(247, 255, 0, 0.28);
+      background: rgba(255, 255, 255, 0.10);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.28);
       line-height: 1.45;
       font-size: 0.92rem;
       display: none;
     }
 
     .message.show { display: block; }
-    .message.error { background: rgba(255, 36, 24, 0.12); color: #ffd0cc; border-color: rgba(255, 36, 24, 0.38); }
-    .message.ok { background: rgba(0, 208, 80, 0.12); color: #c7ffd9; border-color: rgba(0, 208, 80, 0.36); }
+    .message.error { background: rgba(255, 36, 24, 0.12); color: #FFE1E4; border-color: rgba(255, 36, 24, 0.38); }
+    .message.ok { background: rgba(0, 147, 59, 0.12); color: #DDF8E6; border-color: rgba(0, 147, 59, 0.36); }
 
     .rules-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
     .chip {
@@ -211,23 +205,23 @@
       padding: 5px 9px;
       border-radius: 999px;
       background: var(--chip);
-      color: #cbd5e1;
+      color: #DDE8E1;
       font-size: 0.78rem;
       font-weight: 900;
       white-space: nowrap;
     }
-    .chip.green { background: var(--green-soft); color: #c7ffd9; border: 1px solid rgba(0, 208, 80, 0.32); }
-    .chip.blue { background: var(--draw-soft); color: #eaf3ff; border: 1px solid rgba(139, 184, 255, 0.32); }
-    .chip.yellow { background: var(--warn-soft); color: #fbff8a; border: 1px solid rgba(247, 255, 0, 0.32); }
-    .chip.red { background: var(--red-soft); color: #ffd0cc; border: 1px solid rgba(255, 36, 24, 0.32); }
+    .chip.green { background: var(--green-soft); color: #DDF8E6; border: 1px solid rgba(0, 147, 59, 0.32); }
+    .chip.blue { background: var(--draw-soft); color: #eaf3ff; border: 1px solid rgba(255, 255, 255, 0.32); }
+    .chip.yellow { background: var(--warn-soft); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.32); }
+    .chip.red { background: var(--red-soft); color: #FFE1E4; border: 1px solid rgba(255, 36, 24, 0.32); }
 
     .chart-wrap { height: 560px; padding: 12px 6px 4px; }
 
     table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px 14px; border-bottom: 1px solid rgba(139, 184, 255, 0.14); vertical-align: top; }
-    th { color: #cbd5e1; text-align: left; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(12, 25, 131, 0.32); }
-    td { color: #e5eefc; font-size: 0.92rem; }
-    tbody tr:hover { background: rgba(0, 223, 207, 0.06); }
+    th, td { padding: 12px 14px; border-bottom: 1px solid rgba(255, 255, 255, 0.14); vertical-align: top; }
+    th { color: #DDE8E1; text-align: left; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; background: rgba(12, 25, 131, 0.32); }
+    td { color: #F2FFF6; font-size: 0.92rem; }
+    tbody tr:hover { background: rgba(0, 147, 59, 0.06); }
     .right { text-align: right; }
     .center { text-align: center; }
 
@@ -237,12 +231,12 @@
       display: inline-grid;
       place-items: center;
       border-radius: 10px;
-      background: rgba(49, 85, 255, 0.26);
+      background: rgba(51, 77, 69, 0.26);
       font-weight: 950;
     }
-    .rank.gold { background: linear-gradient(135deg, #f7ff00, #00dfcf); color: #050505; }
-    .rank.silver { background: linear-gradient(135deg, #8bb8ff, #ffffff); color: #0c1983; }
-    .rank.bronze { background: linear-gradient(135deg, #ff4015, #ec1b72); color: #ffffff; }
+    .rank.gold { background: var(--gold); color: var(--black); }
+    .rank.silver { background: var(--silver); color: var(--accent-dark); }
+    .rank.bronze { background: var(--bronze); color: var(--white); }
 
     .chips { display: flex; gap: 6px; flex-wrap: wrap; }
     .muted { color: var(--muted); }
@@ -279,11 +273,11 @@
     }
     .event strong { color: #f8fafc; }
     .event small { display: block; color: #c5d4eb; margin-top: 4px; }
-    .event.win { background: var(--green-soft); border-color: rgba(0, 208, 80, 0.38); }
+    .event.win { background: var(--green-soft); border-color: rgba(0, 147, 59, 0.38); }
     .event.loss { background: var(--red-soft); border-color: rgba(255, 36, 24, 0.38); }
-    .event.draw { background: var(--draw-soft); border-color: rgba(139, 184, 255, 0.38); }
-    .event.phase { background: var(--warn-soft); border-color: rgba(247, 255, 0, 0.38); }
-    .event.champion { background: linear-gradient(135deg, rgba(247, 255, 0, 0.18), rgba(0, 223, 207, 0.10)); border-color: rgba(247, 255, 0, 0.45); }
+    .event.draw { background: var(--draw-soft); border-color: rgba(255, 255, 255, 0.38); }
+    .event.phase { background: var(--warn-soft); border-color: rgba(255, 255, 255, 0.38); }
+    .event.champion { background: var(--warn-soft); border-color: rgba(181, 211, 52, 0.45); }
 
     details.panel { padding: 0; }
     details > summary {
@@ -365,42 +359,44 @@
       </div>
     </section>
 
-    <section class="grid grid-main" style="margin-bottom: 16px;">
-      <div class="panel">
-        <div class="panel-header"><h2 class="panel-title">Ranking general</h2><span class="muted">Gráfica de barras</span></div>
-        <div class="panel-body"><div class="chart-wrap"><canvas id="ranking-chart"></canvas></div></div>
-      </div>
-
-      <div class="panel">
-        <div class="panel-header"><h2 class="panel-title">Últimos movimientos</h2><span class="muted">Victoria, empate y derrota</span></div>
-        <div class="panel-body"><div id="events-list" class="event-list"><p class="muted">Cuando existan partidos finalizados, aquí aparecerán los movimientos.</p></div></div>
-      </div>
+    <section class="panel" style="margin-bottom: 16px;">
+      <div class="panel-header"><h2 class="panel-title">Ranking general</h2><span class="muted">Gráfica de barras</span></div>
+      <div class="panel-body"><div class="chart-wrap"><canvas id="ranking-chart"></canvas></div></div>
     </section>
 
-    <section class="grid grid-ranking" style="margin-bottom: 16px;">
-      <div class="panel">
-        <div class="panel-header"><h2 class="panel-title">Tabla de posiciones</h2></div>
-        <div class="scroll">
-          <table class="ranking-table">
-            <thead><tr><th class="place-col">Lugar</th><th class="participant-col">Participante</th><th class="selection-col">Selecciones</th><th class="right total-col">Total</th></tr></thead>
-            <tbody id="ranking-body"></tbody>
+    <section class="panel detail-panel" style="margin-bottom: 16px;">
+      <div class="panel-header"><h2 class="panel-title">Detalle por participante</h2></div>
+      <div class="panel-body">
+        <select id="participant-select" style="width: 100%; margin-bottom: 14px;"></select>
+        <div class="detail-wrap">
+          <table class="detail-table">
+            <thead><tr><th>Selección</th><th class="center">G</th><th class="center">E</th><th class="center">P</th><th class="center">Pases</th><th class="center">Camp.</th><th class="right">Total</th></tr></thead>
+            <tbody id="participant-detail-body"></tbody>
           </table>
         </div>
       </div>
-
-      <div class="panel detail-panel">
-        <div class="panel-header"><h2 class="panel-title">Detalle por participante</h2></div>
-        <div class="panel-body">
-          <select id="participant-select" style="width: 100%; margin-bottom: 14px;"></select>
-          <div class="detail-wrap">
-            <table class="detail-table">
-              <thead><tr><th>Selección</th><th class="center">G</th><th class="center">E</th><th class="center">P</th><th class="center">Pases</th><th class="center">Camp.</th><th class="right">Total</th></tr></thead>
-              <tbody id="participant-detail-body"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </section>
+
+    <details class="panel" style="margin-bottom: 16px;">
+      <summary>
+        <span>Tabla de posiciones</span>
+        <span class="summary-sub">Clic para ver u ocultar <span class="summary-arrow">▾</span></span>
+      </summary>
+      <div class="scroll">
+        <table class="ranking-table">
+          <thead><tr><th class="place-col">Lugar</th><th class="participant-col">Participante</th><th class="selection-col">Selecciones</th><th class="right total-col">Total</th></tr></thead>
+          <tbody id="ranking-body"></tbody>
+        </table>
+      </div>
+    </details>
+
+    <details class="panel" style="margin-bottom: 16px;">
+      <summary>
+        <span>Últimos movimientos</span>
+        <span class="summary-sub">Clic para ver u ocultar <span class="summary-arrow">▾</span></span>
+      </summary>
+      <div class="panel-body"><div id="events-list" class="event-list"><p class="muted">Cuando existan partidos finalizados, aquí aparecerán los movimientos.</p></div></div>
+    </details>
 
     <details class="panel" style="margin-bottom: 16px;">
       <summary>
@@ -437,7 +433,7 @@
       "https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json",
       "https://raw.githubusercontent.com/openfootball/worldcup.json/main/2026/worldcup.json"
     ];
-    const CACHE_KEY = "quiniela_dashboard_worldcup_2026_cache_v3";
+    const CACHE_KEY = "quiniela_dashboard_worldcup_2026_cache_v4";
     const CACHE_TTL_MINUTES = 5;
 
     const POINTS = { win: 3, draw: 1, loss: 0, phase: 4, champion: 10 };
@@ -684,8 +680,8 @@
       const homeId = firstValue(raw, ["home_team_id", "homeTeamId", "home_id", "team1_id"]);
       const awayId = firstValue(raw, ["away_team_id", "awayTeamId", "away_id", "team2_id"]);
 
-      const homeTeam = getTeamNameFromRaw(raw, ["home_team", "homeTeam", "home", "team1", "home_name", "home_team_name", "home_team_en"]) || teamIdMap.get(String(homeId)) || cleanPlaceholder(firstValue(raw, ["home_team_label", "homeLabel"]));
-      const awayTeam = getTeamNameFromRaw(raw, ["away_team", "awayTeam", "away", "team2", "away_name", "away_team_name", "away_team_en"]) || teamIdMap.get(String(awayId)) || cleanPlaceholder(firstValue(raw, ["away_team_label", "awayLabel"]));
+      const homeTeam = getTeamNameFromRaw(raw, ["home_team_name_en", "home_team_name", "home_team_en", "home_team", "homeTeam", "home", "team1", "home_name", "home_team_label", "homeLabel"]) || teamIdMap.get(String(homeId));
+      const awayTeam = getTeamNameFromRaw(raw, ["away_team_name_en", "away_team_name", "away_team_en", "away_team", "awayTeam", "away", "team2", "away_name", "away_team_label", "awayLabel"]) || teamIdMap.get(String(awayId));
 
       const homeScore = parseScore(firstValue(raw, ["home_score", "homeScore", "score_home", "home_goals", "homeGoals"]));
       const awayScore = parseScore(firstValue(raw, ["away_score", "awayScore", "score_away", "away_goals", "awayGoals"]));
@@ -697,7 +693,7 @@
       const date = firstValue(raw, ["local_date", "date", "datetime", "kickoff", "match_date"]);
       const round = firstValue(raw, ["round", "stage", "type", "matchday"]);
       const winnerId = firstValue(raw, ["winner_team_id", "winnerTeamId", "winner_id"]);
-      const winnerName = getTeamNameFromRaw(raw, ["winner", "winner_team", "winnerTeam", "winner_name"]) || (winnerId != null ? teamIdMap.get(String(winnerId)) : null);
+      const winnerName = getTeamNameFromRaw(raw, ["winner_team_name_en", "winner_team_name", "winner", "winner_team", "winnerTeam", "winner_name"]) || (winnerId != null ? teamIdMap.get(String(winnerId)) : null);
 
       return {
         homeTeam,
@@ -1022,7 +1018,7 @@
             tooltip: { callbacks: { label: context => `${context.raw} puntos` } }
           },
           scales: {
-            x: { beginAtZero: true, ticks: { color: "#dbeafe", precision: 0 }, grid: { color: "rgba(139, 184, 255, 0.14)" } },
+            x: { beginAtZero: true, ticks: { color: "#C8D7CE", precision: 0 }, grid: { color: "rgba(255, 255, 255, 0.14)" } },
             y: { ticks: { color: "#ffffff" }, grid: { display: false } }
           }
         }
