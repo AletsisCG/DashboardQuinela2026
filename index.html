@@ -685,8 +685,8 @@
 
       const homeScore = parseScore(firstValue(raw, ["home_score", "homeScore", "score_home", "home_goals", "homeGoals"]));
       const awayScore = parseScore(firstValue(raw, ["away_score", "awayScore", "score_away", "away_goals", "awayGoals"]));
-      const homePenalty = parseScore(firstValue(raw, ["home_penalty", "home_penalties", "homePenalty", "penalty_home"]));
-      const awayPenalty = parseScore(firstValue(raw, ["away_penalty", "away_penalties", "awayPenalty", "penalty_away"]));
+      const homePenalty = parseScore(firstValue(raw, ["home_penalty_score","home_penalty_goals","home_penalty","home_penalties","homePenalty","penalty_home"]));
+      const awayPenalty = parseScore(firstValue(raw, ["away_penalty_score","away_penalty_goals","away_penalty","away_penalties","awayPenalty","penalty_away"]));
       const rawType = firstValue(raw, ["type", "stage", "round", "phase", "group"]);
       const type = normalizeStage(rawType);
       const group = normalizeGroup(firstValue(raw, ["group", "group_name", "groupName"]));
